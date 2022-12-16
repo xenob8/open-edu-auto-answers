@@ -16,16 +16,11 @@ public class LoginPage {
 
     public LoginPage(Page page) {
         this.page = page;
-//        this.loginButton = page.locator("//a[@class='header__button' and text()='Вход']");
         this.loginButton = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Вход"));
-//        this.polyLocator = page.locator("//li[@class='social-form__item spbstu']//a");
         this.polyLocator = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Политех"));
 
-//        this.loginInput = page.locator("//input[@id='user']");
         this.loginInput = page.getByLabel("Логин");
-//        this.passwordInput = page.locator("//input[@id='password']");
         this.passwordInput = page.getByLabel("Пароль");
-//        this.polySumbitButton = page.locator("//input[@id='doLogin']");
         this.polySumbitButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Войти"));
     }
 
@@ -33,23 +28,28 @@ public class LoginPage {
         page.navigate(BASE_URL);
     }
 
-    public void clickLogin() {
+    public LoginPage clickLogin() {
         loginButton.click();
+        return this;
     }
 
-    public void clickPoly() {
+    public LoginPage clickPoly() {
         polyLocator.click();
+        return this;
     }
 
-    public void fillLogin(String login) {
+    public LoginPage fillLogin(String login) {
         loginInput.fill(login);
+        return this;
     }
 
-    public void fillPassword(String password) {
+    public LoginPage fillPassword(String password) {
         passwordInput.fill(password);
+        return this;
     }
 
-    public void polySubmit() {
+    public LoginPage polySubmit() {
         polySumbitButton.click();
+        return this;
     }
 }

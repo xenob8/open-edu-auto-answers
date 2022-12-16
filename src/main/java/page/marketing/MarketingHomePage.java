@@ -29,6 +29,7 @@ public class MarketingHomePage {
 
     public void navigate(){
         page.navigate(URL);
+        assertThat(page.getByText("Общая информация")).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(25000));
     }
 
     public List<CourseItem> getCourseItemList() {

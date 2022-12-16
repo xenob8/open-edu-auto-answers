@@ -14,7 +14,7 @@ public class Problem {
 
     public Problem(Locator root){
         this.root = root;
-        this.taskLocator = root.locator("xpath=/div/p/span");
+        this.taskLocator = root.locator("xpath=//div/p/span").first();
         this.answersLocator = root.locator("//label//span");
     }
 
