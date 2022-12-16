@@ -8,6 +8,7 @@ public class CourseItem {
     private final static String TITLE_SELECTOR = "//span";
     private final Locator collapse_button;
     private final Locator topicLink;
+    private final Locator attestationLink;
 
     private final Locator root;
 
@@ -15,6 +16,8 @@ public class CourseItem {
         this.root = locator;
         this.collapse_button = locator.getByRole(AriaRole.BUTTON).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Открыть"));
         this.topicLink = locator.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Тема"));
+        this.attestationLink = locator.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Аттестация"));
+
     }
 
 //    public String getTitle() {
@@ -34,6 +37,11 @@ public class CourseItem {
     public void navigateTopic(){
         this.topicLink.click();
     }
+
+    public void navigateAttestation(){
+        this.attestationLink.click();
+    }
+
 
     @Override
     public String toString() {

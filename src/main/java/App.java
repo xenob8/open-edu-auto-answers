@@ -12,10 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+
 public class App {
 
     static private final String login = "solodovnikov.sf@edu.spbstu.ru";
     static private final String password = "Sus4xok";
+    private final AnswerParser parser = new AnswerParser();
+
+    public App() throws IOException {
+    }
 
     private void saveState(BrowserContext context) {
         context.storageState(new BrowserContext.StorageStateOptions().setPath(Paths.get("state.json")));
@@ -27,7 +32,34 @@ public class App {
         loginPage.clickLogin().clickPoly().fillLogin(login).fillPassword(password).polySubmit();
     }
 
+    private void handleProblems(List<Problem> problems) {
+        if (problems.isEmpty()) {
+            return;
+        }
+        problems.forEach(problem -> {
+            String question = problem.getTitle();
+            System.out.println("Вопрос? " + question);
+            System.out.println("найденый ответ:");
+            Optional<Map<String, String>> answer = parser.getAnswer(question);
+            System.out.println(answer);
+            answer.ifPresent(e -> {
+                String ans = e.get("ОТВЕТ");
+                if (ans != null) {
+                    problem.clickAnswer(ans);
+                }
+
+            });
+            System.out.println("Возможные ответы: ");
+            System.out.println(problem.getAnswers());
+        });
+    }
+
     public static void main(String[] args) throws IOException {
+        App app = new App();
+        app.run();
+    }
+
+    public void run() throws IOException {
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false).setSlowMo(50));
             BrowserContext context = browser.newContext(new Browser.NewContextOptions().setLocale("ru").setStorageStatePath(Paths.get("state.json")));
@@ -52,50 +84,20 @@ public class App {
                     MarketingTaskPage taskPage = new MarketingTaskPage(page);
                     taskPage.navigateToPractice();
                     List<Problem> problems = taskPage.getProblems();
-                    AnswerParser parser = new AnswerParser();
-                    problems.forEach(problem -> {
-                        String question = problem.getTitle();
-                        System.out.println("Вопрос? " + question);
-                        System.out.println("найденый ответ:");
-                        Optional<Map<String, String>> answer = parser.getAnswer(question);
-                        System.out.println(answer);
-                        answer.ifPresent(e -> {
-                            String ans = e.get("ОТВЕТ");
-                            if (ans != null) {
-                                problem.clickAnswer(ans);
-                            }
+                    this.handleProblems(problems);
 
-                        });
-                        System.out.println("Возможные ответы: ");
-                        System.out.println(problem.getAnswers());
-                    });
                     taskPage.navigateToSoloWork();
                     problems = taskPage.getProblems();
-                    if (problems.isEmpty()) {
-                        marketingHomePage.navigate();
-                        continue;
-                    }
-                    problems.forEach(problem -> {
-                        String question = problem.getTitle();
-                        System.out.println("Вопрос? " + question);
-                        System.out.println("найденый ответ:");
-                        Optional<Map<String, String>> answer = parser.getAnswer(question);
-                        System.out.println(answer);
-                        answer.ifPresent(e -> {
-                            String ans = e.get("ОТВЕТ");
-                            if (ans != null) {
-                                problem.clickAnswer(ans);
-                            }
-
-                        });
-                        System.out.println("Возможные ответы: ");
-                        System.out.println(problem.getAnswers());
-                    });
+                    this.handleProblems(problems);
                     marketingHomePage.navigate();
-
+                    item.collapse();
+                    item.navigateAttestation();
+                    taskPage.load();
+                    this.handleProblems(taskPage.getProblems());
+                    marketingHomePage.navigate();
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 System.out.println(e);
                 context.tracing().stop(new Tracing.StopOptions()
                         .setPath(Paths.get("trace.zip")));
