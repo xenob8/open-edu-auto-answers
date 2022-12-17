@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class App {
@@ -32,10 +33,11 @@ public class App {
         loginPage.clickLogin().clickPoly().fillLogin(login).fillPassword(password).polySubmit();
     }
 
-    private void handleProblems(List<Problem> problems) {
+    private int handleProblems(List<Problem> problems) {
         if (problems.isEmpty()) {
-            return;
+            return 0;
         }
+        AtomicInteger unresolvedCount = new AtomicInteger();
         problems.forEach(problem -> {
             String question = problem.getTitle();
             System.out.println("Вопрос? " + question);
@@ -45,13 +47,16 @@ public class App {
             answer.ifPresent(e -> {
                 String ans = e.get("ОТВЕТ");
                 if (ans != null) {
-                    problem.clickAnswer(ans);
+                    if (!problem.clickAnswer(ans)){
+                        unresolvedCount.getAndIncrement();
+                    }
                 }
 
             });
             System.out.println("Возможные ответы: ");
             System.out.println(problem.getAnswers());
         });
+        return unresolvedCount.get();
     }
 
     public static void main(String[] args) throws IOException {
@@ -71,8 +76,6 @@ public class App {
 
             Page page = context.newPage();
             try {
-
-
                 MarketingHomePage marketingHomePage = new MarketingHomePage(page);
                 List<CourseItem> itemList = marketingHomePage.getCourseItemList();
                 int size = itemList.size();
@@ -84,16 +87,26 @@ public class App {
                     MarketingTaskPage taskPage = new MarketingTaskPage(page);
                     taskPage.navigateToPractice();
                     List<Problem> problems = taskPage.getProblems();
-                    this.handleProblems(problems);
+                    int unresolvedCount = this.handleProblems(problems);
+                    if (unresolvedCount > 0){
+                        page.pause();
+                    }
 
                     taskPage.navigateToSoloWork();
                     problems = taskPage.getProblems();
-                    this.handleProblems(problems);
+                    unresolvedCount = this.handleProblems(problems);
+                    if (unresolvedCount > 0){
+                        page.pause();
+                    }
                     marketingHomePage.navigate();
                     item.collapse();
                     item.navigateAttestation();
                     taskPage.load();
-                    this.handleProblems(taskPage.getProblems());
+                    problems = taskPage.getProblems();
+                    unresolvedCount = this.handleProblems(problems);
+                    if (unresolvedCount > 0){
+                        page.pause();
+                    }
                     marketingHomePage.navigate();
                 }
 

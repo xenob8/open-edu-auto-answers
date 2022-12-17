@@ -36,11 +36,13 @@ public class Problem {
         return null;
     }
 
-    public void clickAnswer(String answer) {
+    public boolean clickAnswer(String answer) {
         Locator ans = this.findAnswer(answer);
         if (ans != null) {
             ans.click();
+            return true;
         }
+        return false;
     }
 
     public String getTitle() {
