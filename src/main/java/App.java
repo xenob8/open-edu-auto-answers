@@ -1,5 +1,6 @@
 import com.microsoft.playwright.*;
 import excel.AnswerParser;
+import io.github.cdimascio.dotenv.Dotenv;
 import page.login.LoginPage;
 import page.marketing.MarketingHomePage;
 import page.marketing.MarketingTaskPage;
@@ -8,32 +9,47 @@ import page.marketing.valueobject.Problem;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
 
-    static private final String login = "solodovnikov.sf@edu.spbstu.ru";
-    static private final String password = "Sus4xok";
+    static private final String login = Dotenv.load().get("login");
+    static private final String password = Dotenv.load().get("password");
+    static private final boolean isLoginMod = Dotenv.load().get("isLoginMod").equals("true");
     private final AnswerParser parser = new AnswerParser();
     private final BrowserContext context;
+    private final Page page;
+
+    public Browser.NewContextOptions getContextOptions() {
+        Browser.NewContextOptions options = new Browser.NewContextOptions().setLocale("ru");
+        if (!isLoginMod) {
+            options.setStorageStatePath(Paths.get("state.json"));
+        }
+        return options;
+    }
 
     public App() throws IOException {
         Playwright playwright = Playwright.create();
         Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false).setSlowMo(50));
-        context = browser.newContext(new Browser.NewContextOptions().setLocale("ru").setStorageStatePath(Paths.get("state.json")));
+        context = browser.newContext(getContextOptions());
         context.tracing().start(new Tracing.StartOptions().setScreenshots(true).setSnapshots(true));
+        page = context.newPage();
 
     }
 
-
     public static void main(String[] args) throws IOException {
+
         App app = new App();
+        if (isLoginMod) {
+            app.login();
+            app.saveState();
+        }
         app.run();
     }
 
-    public void run() throws IOException {
-        Page page = context.newPage();
+    public void run() {
         try {
             MarketingHomePage marketingHomePage = MarketingHomePage.navigate(page);
             List<CourseItem> itemList = marketingHomePage.getCourseItemList();
@@ -42,14 +58,14 @@ public class App {
                 CourseItem item = marketingHomePage.getCourseItemList().get(i);
                 MarketingTaskPage taskPage = item.expand().navigateToTopic(page);
                 taskPage.navigateToPractice();
-                debug(this.handleProblems(taskPage.getProblems()), page);
+                debug(this.handleProblems(taskPage.getProblems()));
 
                 taskPage.navigateToSoloWork();
-                debug(this.handleProblems(taskPage.getProblems()), page);
+                debug(this.handleProblems(taskPage.getProblems()));
 
                 MarketingHomePage.navigate(page);
                 taskPage = item.expand().navigateToAttestation(page);
-                debug(this.handleProblems(taskPage.getProblems()), page);
+                debug(this.handleProblems(taskPage.getProblems()));
 
                 MarketingHomePage.navigate(page);
             }
@@ -95,17 +111,17 @@ public class App {
     }
 
 
-    private void saveState(BrowserContext context) {
+    private void saveState() {
         context.storageState(new BrowserContext.StorageStateOptions().setPath(Paths.get("state.json")));
     }
 
-    private void login(Page page) {
+    private void login() {
         LoginPage loginPage = new LoginPage(page);
         loginPage.navigate();
         loginPage.clickLogin().clickPoly().fillLogin(login).fillPassword(password).polySubmit();
     }
 
-    private void debug(int unresolvedCount, Page page) {
+    private void debug(int unresolvedCount) {
         if (unresolvedCount > 0) {
             System.out.println("Unresolved " + unresolvedCount + "questions");
             page.pause();
