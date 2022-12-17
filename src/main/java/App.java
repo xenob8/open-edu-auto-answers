@@ -9,8 +9,6 @@ import page.marketing.valueobject.Problem;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -42,17 +40,27 @@ public class App {
             String question = problem.getTitle();
             System.out.println("Вопрос? " + question);
             System.out.println("найденый ответ:");
-            Optional<Map<String, String>> answer = parser.getAnswer(question);
-            System.out.println(answer);
-            answer.ifPresent(e -> {
-                String ans = e.get("ОТВЕТ");
-                if (ans != null) {
-                    if (!problem.clickAnswer(ans)){
-                        unresolvedCount.getAndIncrement();
+            if (problem.questionType().equals("checkbox")){
+                List<String> answers = problem.getAnswers();
+                for (String ans: answers){
+                    if (parser.getAnswerSelected(question, ans) != null){
+                        problem.clickAnswer(ans);
                     }
                 }
 
-            });
+            }
+            else {
+
+
+                String answer = parser.getAnswer(question, problem.getAnswers());
+                System.out.println(answer);
+                if (answer != null) {
+                    problem.clickAnswer(answer);
+                } else {
+                    unresolvedCount.incrementAndGet();
+                }
+            }
+
             System.out.println("Возможные ответы: ");
             System.out.println(problem.getAnswers());
         });
@@ -79,7 +87,7 @@ public class App {
                 MarketingHomePage marketingHomePage = new MarketingHomePage(page);
                 List<CourseItem> itemList = marketingHomePage.getCourseItemList();
                 int size = itemList.size();
-                for (int i = 0; i < size; i++) {
+                for (int i = 3; i < size; i++) {
                     CourseItem item = marketingHomePage.getCourseItemList().get(i);
                     item.collapse();
                     item.getTopic();
