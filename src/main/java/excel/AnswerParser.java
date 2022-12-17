@@ -29,17 +29,10 @@ public class AnswerParser {
     }
 
     public String getRightAnswerFromList(String question, List<String> choiceAnswers) {
-        String finalQuestion = question.substring(1, question.length() - 1);
-        List<Map<String, String>> questions = table.stream().filter(e -> applyRegex(e.get("ВОПРОС")).contains(applyRegex(finalQuestion))).toList();
-        List<String> copyChoiceAnswers = choiceAnswers.stream().map(this::applyRegex).toList();
-        for (Map<String, String> tableQuestion : questions) {
-            Optional<String> choiceAns = copyChoiceAnswers.stream().
-                    filter(choiceAnswer -> choiceAnswer
-                            .contains(applyRegex(tableQuestion.get("ОТВЕТ"))))
-                    .findFirst();
-            if (choiceAns.isPresent()) {
-                return choiceAnswers.get(copyChoiceAnswers.indexOf(choiceAns.get()));
-            }
+        for (String ans : choiceAnswers){
+            if (isAnswer(question, ans)){
+                return ans;
+            };
         }
         return null;
     }

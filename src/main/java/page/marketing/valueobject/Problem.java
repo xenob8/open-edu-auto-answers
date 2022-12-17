@@ -1,17 +1,14 @@
 package page.marketing.valueobject;
 
 import com.microsoft.playwright.Locator;
-
 import java.util.List;
-import java.util.regex.Pattern;
-
 
 public class Problem {
     private final Locator taskLocator;
     private final Locator answersLocator;
     private final Locator input;
 
-    public String questionType(){
+    public String questionType() {
         return input.getAttribute("type");
     }
 
@@ -21,34 +18,9 @@ public class Problem {
         this.input = root.locator("//input").first();
     }
 
-    private Locator findAnswer(String answer) {
+    public void clickAnswer(String answer) {
         Locator ans = this.answersLocator.getByText(answer, new Locator.GetByTextOptions().setExact(true));
-        if (ans.isVisible()) {
-            return ans;
-        }
-        ans = this.answersLocator.getByText(Pattern.compile("^" + answer));
-        if (ans.isVisible()) {
-            return ans;
-        }
-        ans = this.answersLocator.getByText(answer).first();
-        if (ans.isVisible()) {
-            return ans;
-        }
-        ans = this.answersLocator.getByText(Pattern.compile("^[0-9]+,[0-9]+$")).first();
-        if (ans.isVisible()) {
-            return ans;
-        }
-        System.out.println("no matched answer");
-        return null;
-    }
-
-    public boolean clickAnswer(String answer) {
-        Locator ans = this.findAnswer(answer);
-        if (ans != null) {
-            ans.click();
-            return true;
-        }
-        return false;
+        ans.click();
     }
 
     public String getQuestion() {

@@ -1,11 +1,12 @@
 package page.marketing.valueobject;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import page.marketing.MarketingTaskPage;
 
 public class CourseItem {
-//    private final Locator titleLocator;
-    private final static String TITLE_SELECTOR = "//span";
+
     private final Locator collapse_button;
     private final Locator topicLink;
     private final Locator attestationLink;
@@ -17,29 +18,27 @@ public class CourseItem {
         this.collapse_button = locator.getByRole(AriaRole.BUTTON).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Открыть"));
         this.topicLink = locator.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Тема"));
         this.attestationLink = locator.getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName("Аттестация"));
-
     }
 
-//    public String getTitle() {
-//        return titleLocator.textContent();
-//    }
-
-    public void collapse() {
+    public CourseItem expand() {
         if (collapse_button.isVisible()) {
             collapse_button.click();
         }
+        return this;
     }
 
-    public String getTopic(){
+    public String getTopic() {
         return topicLink.textContent();
     }
 
-    public void navigateTopic(){
+    public MarketingTaskPage navigateToTopic(Page page) {
         this.topicLink.click();
+        return new MarketingTaskPage(page);
     }
 
-    public void navigateAttestation(){
+    public MarketingTaskPage navigateToAttestation(Page page) {
         this.attestationLink.click();
+        return new MarketingTaskPage(page);
     }
 
 

@@ -4,6 +4,7 @@ import com.microsoft.playwright.FrameLocator;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
+import page.BasePage;
 import page.marketing.valueobject.Problem;
 
 import java.util.ArrayList;
@@ -12,33 +13,31 @@ import java.util.List;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 
-public class MarketingTaskPage {
-    private final Page page;
-    //    private final List<Problem> problems = new ArrayList<>();
+public class MarketingTaskPage extends BasePage {
     private final Locator problemsLocator;
     private final Locator topicMenuLocator;
     private final FrameLocator taskFrame;
 
 
     public MarketingTaskPage(Page page) {
-        this.page = page;
-        assertThat(page.locator("//h1")).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30000));
+        super(page);
         topicMenuLocator = page.locator("//div[@class='sequence-navigation-tabs-container']");
         taskFrame = page.frameLocator("#unit-iframe");
         problemsLocator = taskFrame.locator("//div[@class='problem']");
     }
 
-    public void navigateToPractice() {
+    public MarketingTaskPage navigateToPractice() {
         topicMenuLocator.getByTitle("Практическое занятие").click();
-        load();
+        return new MarketingTaskPage(page);
     }
 
-    public void navigateToSoloWork() {
+    public MarketingTaskPage navigateToSoloWork() {
         topicMenuLocator.getByTitle("Самостоятельная работа").click();
-        load();
+        return new MarketingTaskPage(page);
     }
 
-    public void load() {
+    @Override
+    public void isLoaded() {
         page.locator("//iframe[@id='unit-iframe']").waitFor();
     }
 
