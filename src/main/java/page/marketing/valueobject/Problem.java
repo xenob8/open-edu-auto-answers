@@ -51,7 +51,7 @@ public class Problem {
         return false;
     }
 
-    public String getTitle() {
+    public String getQuestion() {
         return taskLocator.textContent();
     }
 

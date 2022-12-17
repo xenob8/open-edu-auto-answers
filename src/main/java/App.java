@@ -37,22 +37,18 @@ public class App {
         }
         AtomicInteger unresolvedCount = new AtomicInteger();
         problems.forEach(problem -> {
-            String question = problem.getTitle();
+            String question = problem.getQuestion();
             System.out.println("Вопрос? " + question);
             System.out.println("найденый ответ:");
-            if (problem.questionType().equals("checkbox")){
+            if (problem.questionType().equals("checkbox")) {
                 List<String> answers = problem.getAnswers();
-                for (String ans: answers){
-                    if (parser.getAnswerSelected(question, ans) != null){
+                for (String ans : answers) {
+                    if (parser.isAnswer(question, ans)) {
                         problem.clickAnswer(ans);
                     }
                 }
-
-            }
-            else {
-
-
-                String answer = parser.getAnswer(question, problem.getAnswers());
+            } else {
+                String answer = parser.getRightAnswerFromList(question, problem.getAnswers());
                 System.out.println(answer);
                 if (answer != null) {
                     problem.clickAnswer(answer);
@@ -96,14 +92,14 @@ public class App {
                     taskPage.navigateToPractice();
                     List<Problem> problems = taskPage.getProblems();
                     int unresolvedCount = this.handleProblems(problems);
-                    if (unresolvedCount > 0){
+                    if (unresolvedCount > 0) {
                         page.pause();
                     }
 
                     taskPage.navigateToSoloWork();
                     problems = taskPage.getProblems();
                     unresolvedCount = this.handleProblems(problems);
-                    if (unresolvedCount > 0){
+                    if (unresolvedCount > 0) {
                         page.pause();
                     }
                     marketingHomePage.navigate();
@@ -112,7 +108,7 @@ public class App {
                     taskPage.load();
                     problems = taskPage.getProblems();
                     unresolvedCount = this.handleProblems(problems);
-                    if (unresolvedCount > 0){
+                    if (unresolvedCount > 0) {
                         page.pause();
                     }
                     marketingHomePage.navigate();

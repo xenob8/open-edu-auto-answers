@@ -17,7 +17,7 @@ public class Run {
         ansers.add(ans2);
         ansers.add(ans3);
         ansers.add(ans4);
-        System.out.println(answerParser.getAnswer(question, ansers));
+        System.out.println(answerParser.getRightAnswerFromList(question, ansers));
 //        System.out.println(answerParser.getAnswer("Целесообразно ли проводить рекламную акцию в варианте 1?"));
 
 

@@ -2,13 +2,10 @@ package excel;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.playwright.Page;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AnswerParser {
 
@@ -27,15 +24,14 @@ public class AnswerParser {
         return table.stream().filter(Objects::nonNull).filter(e -> e.get("ВОПРОС") != null).toList();
     }
 
-    public String applyRegex(String str){
+    private String applyRegex(String str) {
         return str.replaceAll("[,:.? ]", "").toLowerCase(Locale.ROOT).replaceAll("c", "с");
     }
 
-    public String getAnswer(String question, List<String> choiceAnswers) {
+    public String getRightAnswerFromList(String question, List<String> choiceAnswers) {
         String finalQuestion = question.substring(1, question.length() - 1);
         List<Map<String, String>> questions = table.stream().filter(e -> applyRegex(e.get("ВОПРОС")).contains(applyRegex(finalQuestion))).toList();
         List<String> copyChoiceAnswers = choiceAnswers.stream().map(this::applyRegex).toList();
-//        System.out.println(copyChoiceAnswers);
         for (Map<String, String> tableQuestion : questions) {
             Optional<String> choiceAns = copyChoiceAnswers.stream().
                     filter(choiceAnswer -> choiceAnswer
@@ -48,20 +44,16 @@ public class AnswerParser {
         return null;
     }
 
-    public String getAnswerSelected(String question, String choiceAnswer) {
+    public boolean isAnswer(String question, String choiceAnswer) {
         String finalQuestion = question.substring(1, question.length() - 1);
         List<Map<String, String>> questions = table.stream().filter(e -> applyRegex(e.get("ВОПРОС")).contains(applyRegex(finalQuestion))).toList();
         String copyChoiceAnswer = applyRegex(choiceAnswer);
-//        System.out.println(copyChoiceAnswers);
         for (Map<String, String> tableQuestion : questions) {
-            if (applyRegex(tableQuestion.get("ОТВЕТ")).contains(copyChoiceAnswer)){
-                return choiceAnswer;
+            if (applyRegex(tableQuestion.get("ОТВЕТ")).contains(copyChoiceAnswer)) {
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
-    public List<Map<String, String>> getTable() {
-        return table;
-    }
 }
