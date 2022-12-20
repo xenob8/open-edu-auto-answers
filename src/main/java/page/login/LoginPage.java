@@ -3,9 +3,10 @@ package page.login;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.WaitUntilState;
+import page.BasePage;
 
-public class LoginPage {
-    private final Page page;
+public class LoginPage extends BasePage {
     private final Locator loginButton;
     private final Locator polyLocator;
     private final Locator loginInput;
@@ -15,7 +16,7 @@ public class LoginPage {
 
 
     public LoginPage(Page page) {
-        this.page = page;
+        super(page);
         this.loginButton = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Вход"));
         this.polyLocator = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Политех"));
 
@@ -24,8 +25,14 @@ public class LoginPage {
         this.polySumbitButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Войти"));
     }
 
-    public void navigate() {
-        page.navigate(BASE_URL);
+    @Override
+    public void isLoaded() {
+
+    }
+
+    public static LoginPage navigate(Page page) {
+        page.navigate(BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
+        return new LoginPage(page);
     }
 
     public LoginPage clickLogin() {

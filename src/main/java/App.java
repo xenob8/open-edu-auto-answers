@@ -115,8 +115,7 @@ public class App {
     }
 
     private void login() {
-        LoginPage loginPage = new LoginPage(page);
-        loginPage.navigate();
+        LoginPage loginPage = LoginPage.navigate(page);
         loginPage.clickLogin().clickPoly().fillLogin(login).fillPassword(password).polySubmit();
     }
 
